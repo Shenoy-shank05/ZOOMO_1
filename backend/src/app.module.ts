@@ -11,11 +11,14 @@ import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AddressModule } from './address/address.module';
+import { MerchantModule } from './merchant/merchant.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/roles.guard';
 
 
 @Module({
-  imports: [AuthModule, UsersModule,PrismaModule, RestaurantsModule, DishesModule, CartModule, OrdersModule, PaymentsModule, AddressModule],
+  imports: [AuthModule, UsersModule,PrismaModule, RestaurantsModule, DishesModule, CartModule, OrdersModule, PaymentsModule, AddressModule, MerchantModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [{ provide: APP_GUARD, useClass: RolesGuard }, AppService, PrismaService],
 })
 export class AppModule {}
