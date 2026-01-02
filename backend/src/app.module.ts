@@ -19,6 +19,6 @@ import { RolesGuard } from './auth/roles.guard';
 @Module({
   imports: [AuthModule, UsersModule,PrismaModule, RestaurantsModule, DishesModule, CartModule, OrdersModule, PaymentsModule, AddressModule, MerchantModule],
   controllers: [AppController],
-  providers: [{ provide: APP_GUARD, useClass: RolesGuard }, AppService, PrismaService],
+  providers: [ AppService, PrismaService],
 })
 export class AppModule {}

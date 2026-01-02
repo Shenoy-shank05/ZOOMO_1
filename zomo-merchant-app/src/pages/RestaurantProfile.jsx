@@ -35,7 +35,6 @@ export default function RestaurantProfile() {
         data
       );
 
-      // Update local state after save
       setRestaurant((prev) => ({
         ...prev,
         ...data,
@@ -50,30 +49,55 @@ export default function RestaurantProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <p className="text-gray-500 dark:text-gray-400">
         Loading restaurant profile...
-      </div>
+      </p>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-xl mx-auto bg-white p-6 rounded shadow">
+      <div
+        className="
+          max-w-3xl
+          rounded-3xl
+          bg-white/95 dark:bg-[#141414]
+          border border-black/5 dark:border-white/10
+          p-6
+        "
+      >
         <p className="text-red-500">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl bg-white p-6 rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">
-        Restaurant Profile
-      </h1>
+    <div className="max-w-3xl space-y-6">
 
-      <RestaurantForm
-        restaurant={restaurant}
-        onSubmit={saveProfile}
-      />
+      {/* ================= HEADER ================= */}
+      <div>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+          Restaurant Profile
+        </h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Manage your restaurant’s information visible to customers
+        </p>
+      </div>
+
+      {/* ================= FORM CARD ================= */}
+      <div
+        className="
+          rounded-3xl
+          bg-white/95 dark:bg-[#141414]
+          border border-black/5 dark:border-white/10
+          p-6
+        "
+      >
+        <RestaurantForm
+          restaurant={restaurant}
+          onSubmit={saveProfile}
+        />
+      </div>
     </div>
   );
 }

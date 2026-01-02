@@ -26,10 +26,5 @@ export class RestaurantsController {
     return this.restaurantsService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("MERCHANT", "ADMIN")
-  @Post()
-  create(@Body() body: any, @Req() req) {
-    return this.restaurantsService.create(body, req.user.id);
-  }
+
 }

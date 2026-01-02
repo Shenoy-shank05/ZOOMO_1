@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UsersService } from './users.service';
 
@@ -7,9 +7,13 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   // GET /users/me
-  @UseGuards(JwtAuthGuard)
-  @Get("me")
-  getMe(@Req() req) {
-    return req.user; // comes from JWT payload
-  }
+@UseGuards(JwtAuthGuard)
+@Get("me")
+async getMe(@Req() req) {
+  const user = await this.usersService.findById(req.user.id);
+  if (!user) throw new UnauthorizedException("User not found");
+  return user; // return FULL user
+
+}
+
 }

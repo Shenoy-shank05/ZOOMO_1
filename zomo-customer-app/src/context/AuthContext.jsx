@@ -8,45 +8,66 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user on refresh
+  /* =========================================
+     RESTORE SESSION ON REFRESH
+  ========================================== */
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     if (!token) {
       setLoading(false);
       return;
     }
 
-    api
-      .get("/users/me")
-      .then((res) => setUser(res))          // api wrapper returns res.data
-      .catch(() => localStorage.removeItem("token"))
+    api.get("/users/me")
+      .then((res) => {
+        if (!res || res.role !== "USER") {
+          console.warn("🚫 Invalid/merchant token detected → logout");
+          return logout();
+        }
+        setUser(res);
+      })
+      .catch(() => logout())
       .finally(() => setLoading(false));
   }, []);
 
-  // LOGIN
+  /* =========================================
+      LOGIN (CUSTOMER ONLY)
+  ========================================== */
   const login = async ({ email, password }) => {
     const res = await api.post("/auth/login", { email, password });
 
-    // Backend returns token + user
-    const token = res.token || res.access_token || res.data?.token;
-    const userData = res.user || res.data?.user;
+    const token = res.access_token;
+    const userData = res.user;
 
-    if (!token) throw new Error("Token missing from server");
+    if (!token || !userData) throw new Error("❌ Invalid login response from server");
+    if (userData.role !== "USER") throw new Error("🚫 Please login from Merchant app!");
 
-    localStorage.setItem("token", token);
+    localStorage.setItem("access_token", token);
     setUser(userData);
-
     return userData;
   };
 
-  // SIGNUP
+  /* =========================================
+      SIGNUP → auto-login
+  ========================================== */
   const signup = async (form) => {
-    return await api.post("/auth/signup", form);
+    const res = await api.post("/auth/signup", form);
+
+    const token = res.access_token;
+    const userData = res.user;
+
+    if (!token) throw new Error("❌ Signup didn't return token");
+
+    localStorage.setItem("access_token", token);
+    setUser(userData);
+    return userData;
   };
 
-  // LOGOUT
+  /* =========================================
+      LOGOUT
+  ========================================== */
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
     setUser(null);
   };
 
@@ -59,6 +80,7 @@ export default function AuthProvider({ children }) {
         signup,
         logout,
         isAuthenticated: !!user,
+        isUser: user?.role === "USER",
       }}
     >
       {children}

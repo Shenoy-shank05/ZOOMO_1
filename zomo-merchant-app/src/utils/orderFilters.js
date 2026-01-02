@@ -10,7 +10,6 @@ export const ORDER_FILTERS = {
   ACTIVE: {
     label: "Active",
     match: (order) =>
-      order.status === "PENDING" ||
       order.status === "PREPARING",
   },
   COMPLETED: {

@@ -1,20 +1,29 @@
 const API_BASE = "http://localhost:3000";
 
+/* =========================================================
+   TOKEN HELPER
+   → AuthContext stores "access_token", so fetch the same
+========================================================= */
 function getToken() {
-  return localStorage.getItem("token");
+  return localStorage.getItem("access_token"); // 👈 CHANGED
 }
 
+/* =========================================================
+   SAFE JSON PARSE (prevents random logout on bad backend res)
+========================================================= */
 async function handleResponse(res) {
   const text = await res.text();
-
   try {
     return text ? JSON.parse(text) : {};
   } catch (err) {
-    console.error("Invalid JSON from backend:", text);
+    console.error("❌ Invalid JSON from backend:", text);
     return {};
   }
 }
 
+/* =========================================================
+   API WRAPPER
+========================================================= */
 export const api = {
   // GET
   get: async (url) => {
@@ -36,7 +45,6 @@ export const api = {
       },
       body: JSON.stringify(body),
     });
-
     return handleResponse(res);
   },
 
@@ -51,7 +59,6 @@ export const api = {
       },
       body: JSON.stringify(body),
     });
-
     return handleResponse(res);
   },
 
@@ -62,7 +69,6 @@ export const api = {
       method: "DELETE",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-
     return handleResponse(res);
   },
 };

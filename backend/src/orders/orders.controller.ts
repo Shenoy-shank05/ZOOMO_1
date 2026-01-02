@@ -15,21 +15,30 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
-  // GET /orders/mine
+  /* ================= GET USER ORDERS ================= */
   @Get("mine")
   getMyOrders(@Req() req) {
+    if (!req.user || req.user.role !== 'USER') {
+      return [];
+    }
     return this.ordersService.getUserOrders(req.user.id);
   }
 
-  // GET /orders/:id
+  /* ================= GET ORDER BY ID ================= */
   @Get(":id")
   getOrder(@Param("id") id: string, @Req() req) {
+    if (!req.user || req.user.role !== 'USER') {
+      return null;
+    }
     return this.ordersService.getOrderById(id, req.user.id);
   }
 
-  // CREATE ORDER
+  /* ================= CREATE ORDER ================= */
   @Post()
   createOrder(@Req() req, @Body() body) {
+    if (!req.user || req.user.role !== 'USER') {
+      return null;
+    }
     return this.ordersService.createOrder(req.user.id, body);
   }
 }

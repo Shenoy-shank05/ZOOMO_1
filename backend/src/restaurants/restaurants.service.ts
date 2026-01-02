@@ -30,13 +30,5 @@ export class RestaurantsService {
     return restaurant;
   }
 
-  // Create restaurant (merchant/admin only)
-  create(data: any, ownerId: string) {
-    return this.prisma.restaurant.create({
-      data: {
-        ...data,
-        ownerId,
-      },
-    });
-  }
+
 }

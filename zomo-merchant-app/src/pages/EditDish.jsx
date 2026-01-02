@@ -32,8 +32,10 @@ export default function EditDish() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="max-w-xl bg-white p-6 rounded shadow">
-      <h1 className="text-xl font-bold mb-4">Edit Dish</h1>
+    <div className="max-w-xl bg-white dark:bg-[#141414] p-6 rounded shadow">
+      <h1 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+        Edit Dish
+      </h1>
 
       <DishForm
         initialData={dish}   // ✅ THIS IS THE KEY

@@ -1,19 +1,13 @@
 // src/pages/Signup.jsx
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Signup() {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-  });
-
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,21 +15,17 @@ export default function Signup() {
     e.preventDefault();
     setError("");
 
-    if (!form.name || !form.email || !form.phone || !form.password) {
-      setError("All fields are required");
-      return;
-    }
+    if (!form.name || !form.email || !form.phone || !form.password)
+      return setError("All fields are required");
 
-    if (form.phone.length < 10) {
-      setError("Enter a valid phone number");
-      return;
-    }
+    if (form.phone.length < 10)
+      return setError("Enter a valid phone number");
 
     try {
       setLoading(true);
       await signup(form);
-      navigate("/dashboard"); // merchant dashboard
-    } catch (err) {
+      navigate("/dashboard");
+    } catch {
       setError("Signup failed. Email may already exist.");
     } finally {
       setLoading(false);
@@ -43,75 +33,78 @@ export default function Signup() {
   };
 
   return (
-    <form
-      onSubmit={submit}
-      className="bg-white p-8 rounded-xl shadow w-[380px]"
-    >
-      <h2 className="text-2xl font-bold mb-1">
-        Create Merchant Account
-      </h2>
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
 
-      <p className="text-sm text-gray-500 mb-4">
-        Start managing your restaurant on ZOMO
-      </p>
+      {/* Full-screen background */}
+      <div className="absolute inset-0 bg-white dark:bg-black" />
 
-      {error && (
-        <p className="text-red-500 text-sm mb-3">
-          {error}
-        </p>
-      )}
+      {/* Soft gradient sides */}
+      <div className="absolute left-0 top-0 w-1/4 h-full bg-gradient-to-r from-rose-50 dark:from-[#1a1a1a] to-transparent" />
+      <div className="absolute right-0 top-0 w-1/4 h-full bg-gradient-to-l from-rose-50 dark:from-[#1a1a1a] to-transparent" />
 
-      {/* Full Name */}
-      <input
-        type="text"
-        placeholder="Full Name"
-        className="w-full border p-2 rounded mb-3"
-        value={form.name}
-        onChange={(e) =>
-          setForm({ ...form, name: e.target.value })
-        }
-      />
-
-      {/* Email */}
-      <input
-        type="email"
-        placeholder="Email Address"
-        className="w-full border p-2 rounded mb-3"
-        value={form.email}
-        onChange={(e) =>
-          setForm({ ...form, email: e.target.value })
-        }
-      />
-
-      {/* Phone */}
-      <input
-        type="tel"
-        placeholder="Phone Number"
-        className="w-full border p-2 rounded mb-3"
-        value={form.phone}
-        onChange={(e) =>
-          setForm({ ...form, phone: e.target.value })
-        }
-      />
-
-      {/* Password */}
-      <input
-        type="password"
-        placeholder="Password"
-        className="w-full border p-2 rounded mb-4"
-        value={form.password}
-        onChange={(e) =>
-          setForm({ ...form, password: e.target.value })
-        }
-      />
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-red-500 text-white w-full py-2 rounded hover:bg-red-600 disabled:opacity-60"
+      {/* Main card */}
+      <div className="relative z-10 w-full max-w-md
+        p-8 rounded-3xl
+        bg-white/95 dark:bg-[#141414]
+        border border-black/5 dark:border-white/10
+        shadow-xl"
       >
-        {loading ? "Creating account..." : "Sign Up"}
-      </button>
-    </form>
+        {/* Header */}
+        <div className="text-center mb-6">
+          <img src="/zoomo-logo.png" alt="Zoomo" className="w-12 mx-auto mb-4" />
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Create Merchant Account
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Start managing your restaurant on Zoomo
+          </p>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="mb-4 text-sm text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-300 px-4 py-2 rounded-xl">
+            {error}
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={submit} className="space-y-4">
+          {[
+            { label: "Full Name", key: "name" },
+            { label: "Email Address", key: "email", type: "email" },
+            { label: "Phone Number", key: "phone", type: "tel" },
+            { label: "Password", key: "password", type: "password" },
+          ].map(({ label, key, type = "text" }) => (
+            <div key={key}>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {label}
+              </label>
+              <input
+                type={type}
+                className="input-zoomo"
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+              />
+            </div>
+          ))}
+
+          <button
+            type="submit"
+            className="btn-zoomo w-full mt-1 disabled:opacity-60"
+            disabled={loading}
+          >
+            {loading ? "Creating account..." : "Sign Up"}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <p className="text-sm text-center text-gray-600 dark:text-gray-400 mt-6">
+          Already have a merchant account?{" "}
+          <Link to="/login" className="text-emerald-600 font-semibold hover:underline">
+            Login
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }

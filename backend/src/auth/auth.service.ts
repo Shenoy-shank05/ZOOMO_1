@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -10,9 +14,16 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
+  /* ================================
+     CUSTOMER SIGNUP (USER ROLE ONLY)
+  ================================== */
   async signup(dto: any) {
-    const userExists = await this.usersService.findByEmail(dto.email);
-    if (userExists) throw new UnauthorizedException("Email already in use");
+    if (!dto.email || !dto.password || !dto.name) {
+      throw new BadRequestException("Missing required fields");
+    }
+
+    const existing = await this.usersService.findByEmail(dto.email);
+    if (existing) throw new UnauthorizedException("Email already in use");
 
     const hashed = await bcrypt.hash(dto.password, 10);
 
@@ -20,12 +31,16 @@ export class AuthService {
       email: dto.email,
       password: hashed,
       name: dto.name,
-      phone: dto.phone,
+      phone: dto.phone || "",
+      role: "USER", // 🔐 Enforced
     });
 
-    return this.generateToken(user);
+    return this.makeTokenResponse(user);
   }
 
+  /* ================================
+          CUSTOMER LOGIN
+  ================================== */
   async login(dto: any) {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) throw new UnauthorizedException("Invalid email or password");
@@ -33,19 +48,30 @@ export class AuthService {
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException("Invalid email or password");
 
-    return this.generateToken(user);
+    // 🚫 Prevent merchant/admin access
+    if (user.role !== "USER") {
+      throw new UnauthorizedException("Access denied for this role");
+    }
+
+    return this.makeTokenResponse(user);
   }
 
-  generateToken(user) {
-    const payload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    };
+  /* ================================
+           TOKEN RESPONSE
+  ================================== */
+  private makeTokenResponse(user) {
+    // 👇 must match jwt.strategy validate()
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const access_token = this.jwtService.sign(payload);
 
     return {
-      access_token: this.jwtService.sign(payload),
-      user: payload,
+      access_token, // 👈 ALWAYS use this key
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
     };
   }
 }

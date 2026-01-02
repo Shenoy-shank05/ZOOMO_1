@@ -34,8 +34,7 @@ export default function OrderDetails() {
         });
       } catch (err) {
         setError(
-          err.response?.data?.message ||
-            "Failed to load order"
+          err.response?.data?.message || "Failed to load order"
         );
       } finally {
         setLoading(false);
@@ -78,7 +77,7 @@ export default function OrderDetails() {
 
   if (loading)
     return (
-      <p className="text-gray-500">
+      <p className="text-gray-500 dark:text-gray-400">
         Loading order details...
       </p>
     );
@@ -88,49 +87,91 @@ export default function OrderDetails() {
       <p className="text-red-500">{error}</p>
     );
 
-  return (
-    <div className="max-w-2xl bg-white p-6 rounded shadow">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">
-          Order #{order.id.slice(0, 6)}
-        </h1>
+ return (
+  <div className="min-h-screen w-full flex justify-center items-start py-10 px-4">
+    <div className="w-full max-w-3xl space-y-6">
+
+      {/* ================= HEADER ================= */}
+      <div
+        className="
+          rounded-3xl
+          bg-white/95 dark:bg-[#141414]
+          border border-black/5 dark:border-white/10
+          p-6
+          flex items-start justify-between gap-4
+          shadow-lg
+        "
+      >
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            Order #{order.id.slice(0, 6)}
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Customer: {order.customerName}
+          </p>
+        </div>
         <StatusBadge status={order.status} />
       </div>
 
-      <p className="text-sm text-gray-500 mb-4">
-        Customer: {order.customerName}
-      </p>
+      {/* ================= ITEMS ================= */}
+      <div
+        className="
+          rounded-3xl
+          bg-white/95 dark:bg-[#141414]
+          border border-black/5 dark:border-white/10
+          p-6 shadow-md
+        "
+      >
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Ordered Items
+        </h2>
 
-      <div className="border-t pt-4 space-y-2">
-        {order.items.map((item, idx) => (
-          <div
-            key={idx}
-            className="flex justify-between text-sm"
-          >
-            <span>
-              {item.name} × {item.qty}
-            </span>
-            <span>₹{item.price}</span>
-          </div>
-        ))}
+        <div className="space-y-3">
+          {order.items.map((item, idx) => (
+            <div
+              key={idx}
+              className="flex items-center justify-between
+                         text-sm
+                         bg-gray-100 dark:bg-[#1f1f1f]
+                         rounded-2xl
+                         px-4 py-3"
+            >
+              <span className="text-gray-800 dark:text-gray-200">
+                {item.name} × {item.qty}
+              </span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                ₹{item.price}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="border-t mt-4 pt-4 flex justify-between items-center">
-        <div className="font-semibold">
+      {/* ================= FOOTER ================= */}
+      <div
+        className="
+          rounded-3xl
+          bg-white/95 dark:bg-[#141414]
+          border border-black/5 dark:border-white/10
+          p-6
+          flex flex-col sm:flex-row
+          items-start sm:items-center
+          justify-between
+          gap-4 shadow-lg
+        "
+      >
+        <div className="text-lg font-semibold text-gray-900 dark:text-white">
           Total: ₹{order.total}
         </div>
 
-        <div className="flex gap-2">
-          <CancelOrderButton
-            status={order.status}
-            onCancel={cancelOrder}
-          />
-          <OrderStatusActions
-            status={order.status}
-            onUpdate={updateStatus}
-          />
+        <div className="flex gap-3">
+          <CancelOrderButton status={order.status} onCancel={cancelOrder} />
+          <OrderStatusActions status={order.status} onUpdate={updateStatus} />
         </div>
       </div>
+
     </div>
-  );
+  </div>
+);
+
 }
